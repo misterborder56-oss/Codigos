@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>verification </title>
+
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+  <style>
+    body {
+      background: #111;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+      padding: 40px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      background: #00bcd4;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>verification </h2>
+
+<input type="email" id="correo" placeholder="Tu correo">
+<br>
+<button onclick="enviarCodigo()">Enviar código</button>
+
+<br><br>
+
+<input type="text" id="codigoInput" placeholder="Código recibido">
+<br>
+<input type="password" id="claveInput" placeholder="Clave secreta">
+<br>
+
+<button onclick="verificar()">Verificar</button>
+
+<p id="estado"></p>
+
+<script>
+  (function(){
+    emailjs.init("NAEOuETxEqLiBWEyS");
+  })();
+
+  let codigo = null;
+  let usado = false;
+  const CLAVE_SECRETA = "123580@y";
+
+  function generarCodigo() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  function enviarCodigo() {
+    let correo = document.getElementById("correo").value;
+
+    if (!correo) {
+      alert("Pon un correo");
+      return;
+    }
+
+    codigo = generarCodigo();
+    usado = false;
+
+    emailjs.send("service_mh06nuj", "template_hpsturu", {
+      to_email: correo,
+      message: "Tu código es: " + codigo
+    }).then(() => {
+      document.getElementById("estado").innerText = "✅ Código enviado";
+    }).catch((error) => {
+      document.getElementById("estado").innerText = "❌ Error al enviar";
+      console.log(error);
+    });
+
+ setTimeout(() => {
+  codigo = null;
+  document.getElementById("estado").innerText = "⏰ Código expirado";
+}, 900000); // 15 minutos
+  }
+
+  function verificar() {
+    let inputCodigo = document.getElementById("codigoInput").value;
+    let inputClave = document.getElementById("claveInput").value;
+
+    if (!codigo) {
+      document.getElementById("estado").innerText = "❌ Código expirado";
+      return;
+    }
+
+    if (usado) {
+      document.getElementById("estado").innerText = "⚠️ Código ya usado";
+      return;
+    }
+
+    if (inputClave !== CLAVE_SECRETA) {
+      document.getElementById("estado").innerText = "❌ Clave incorrecta";
+      return;
+    }
+
+    if (inputCodigo === codigo) {
+      usado = true;
+      document.getElementById("estado").innerText = "✅ Acceso concedido";
+    } else {
+      document.getElementById("estado").innerText = "❌ Código incorrecto";
+    }
+  }
+</script>
+
+</body>
+  </html>
